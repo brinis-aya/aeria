@@ -1,0 +1,95 @@
+# The whole Aeria platform in one command, built straight from the module repositories:
+#   docker compose up --build
+# Every port is published on 127.0.0.1 only (security module, finding F1).
+#   back-office  http://127.0.0.1:8084   (demo accounts in the aeria-backoffice README)
+#   forecast API http://127.0.0.1:8083/docs
+#   ingestion    http://127.0.0.1:8081/api/sensors
+# The dashboard is a static site: https://brinis-aya.github.io/aeria-dashboard/
+name: aeria-platform
+
+
+services:
+  # ------------------------------------------------------------ module 1 - sensors
+  mosquitto:
+    build: https://github.com/brinis-aya/aeria-iot-sensors.git#main:mosquitto
+    ports: ["127.0.0.1:1883:1883"]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: aeria
+      POSTGRES_USER: aeria
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-aeria}
+    volumes: [aeria-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aeria -d aeria"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  ingest:
+    build: https://github.com/brinis-aya/aeria-iot-sensors.git#main
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/aeria
+      DB_PASSWORD: ${DB_PASSWORD:-aeria}
+      MQTT_URL: tcp://mosquitto:1883
+      MQTT_CLIENT_ID: aeria-ingest
+      SIMULATOR_ENABLED: "false"
+    ports: ["127.0.0.1:8081:8081"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      mosquitto: { condition: service_started }
+    restart: unless-stopped
+
+  simulator:
+    build: https://github.com/brinis-aya/aeria-iot-sensors.git#main
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/aeria
+      DB_PASSWORD: ${DB_PASSWORD:-aeria}
+      MQTT_URL: tcp://mosquitto:1883
+      MQTT_CLIENT_ID: aeria-simulator
+      INGEST_ENABLED: "false"
+      SIMULATOR_ENABLED: "true"
+      PORT: "8082"
+    depends_on:
+      ingest: { condition: service_started }
+    restart: unless-stopped
+
+  # ------------------------------------------------------------ module 3 - forecast (bundled dataset)
+  forecast:
+    build: https://github.com/brinis-aya/aeria-forecast.git#main
+    ports: ["127.0.0.1:8083:8083"]
+    restart: unless-stopped
+
+  # ------------------------------------------------------------ module 4 - back-office
+  backoffice-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: backoffice
+      POSTGRES_USER: backoffice
+      POSTGRES_PASSWORD: ${BO_DB_PASSWORD:-backoffice}
+    volumes: [backoffice-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backoffice"]
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+
+  backoffice:
+    build: https://github.com/brinis-aya/aeria-backoffice.git#main
+    environment:
+      DB_URL: jdbc:postgresql://backoffice-db:5432/backoffice
+      DB_USER: backoffice
+      DB_PASSWORD: ${BO_DB_PASSWORD:-backoffice}
+      SPRING_PROFILES_ACTIVE: demo
+      IOT_URL: http://ingest:8081          # supervision pulls the sensors' health from module 1
+      TZ: Europe/Paris
+    ports: ["127.0.0.1:8084:8084"]
+    depends_on:
+      backoffice-db: { condition: service_healthy }
+    restart: unless-stopped
+
+volumes:
+  aeria-data:
+  backoffice-data:

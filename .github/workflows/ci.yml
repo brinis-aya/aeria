@@ -1,0 +1,55 @@
+name: Platform
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * *"   # every morning: is every module still green?
+
+jobs:
+  modules:
+    name: CI status of the 6 module repositories
+    runs-on: ubuntu-latest
+    steps:
+      - name: Latest run on main of each module
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          fail=0
+          for r in aeria-iot-sensors aeria-data-pipeline aeria-forecast aeria-backoffice aeria-security aeria-dashboard; do
+            c=$(gh run list -R "brinis-aya/$r" -b main -L 1 --json conclusion -q '.[0].conclusion')
+            printf '%-22s %s\n' "$r" "${c:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
+            [ "$c" = "success" ] || fail=1
+          done
+          exit $fail
+
+  platform:
+    name: Whole platform builds from the repositories and answers
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start the 7 services
+        run: docker compose up --build -d
+      - name: Wait for the services
+        run: |
+          for url in http://127.0.0.1:8081/actuator/health http://127.0.0.1:8083/health http://127.0.0.1:8084/actuator/health; do
+            for i in $(seq 1 90); do curl -sf "$url" > /dev/null && echo "up: $url" && break; sleep 4; done
+            curl -sf "$url" > /dev/null || { docker compose logs --tail 80; exit 1; }
+          done
+      - name: Smoke tests across modules
+        run: |
+          set -e
+          # module 1: the simulator publishes over MQTT and the ingestion stores readings
+          for i in $(seq 1 30); do n=$(curl -s http://127.0.0.1:8081/api/stats | python3 -c "import sys,json; print(json.load(sys.stdin).get('stored', 0))"); [ "$n" -gt 0 ] && break; sleep 4; done
+          echo "module 1 stored readings: $n"; [ "$n" -gt 0 ]
+          # module 3: a replayed forecast
+          curl -sf "http://127.0.0.1:8083/forecast/FR05090?issue_date=2026-08-12" | python3 -c "import sys,json; f=json.load(sys.stdin); print('module 3:', f['atmo_label'], f['responsible']); assert f['atmo_index']"
+          # module 4: login page served, API protected, demo data loaded
+          curl -sf http://127.0.0.1:8084/login > /dev/null
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8084/api/indicateurs)" = "401" ]
+          curl -sf -u responsable:demo-responsable http://127.0.0.1:8084/api/indicateurs | python3 -c "import sys,json; k=json.load(sys.stdin); print('module 4: availability', k['disponibilite'], '%'); assert k['en_service'] > 0"
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --tail 120
