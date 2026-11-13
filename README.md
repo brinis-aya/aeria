@@ -7,9 +7,21 @@ over MQTT, official open data, a data warehouse, a next-day forecast of the Fren
 back-office, a security analysis and a public dashboard. It is an open, tested, documented student project,
 split into seven modules.
 
-**▶ Dashboard: <https://brinis-aya.github.io/aeria-dashboard/>** · **▶ Demo video (2 min): VIDEO_URL**
+**▶ Live dashboard: <https://brinis-aya.github.io/aeria-dashboard/>**
 
 ![Architecture](docs/architecture.svg)
+
+## How to test (for reviewers)
+
+| Time | What | How |
+|---|---|---|
+| 1 min | The public dashboard | open <https://brinis-aya.github.io/aeria-dashboard/>: map, a station page, tomorrow's forecast |
+| 15 min | **The whole platform** | Docker Desktop (4 GB RAM free, ports 1883, 8081, 8083, 8084 free), then `git clone https://github.com/brinis-aya/aeria && cd aeria && docker compose up --build`. The first build downloads and compiles every module (10–15 min). |
+| | then | back-office <http://127.0.0.1:8084> (`responsable` / `demo-responsable`), forecast API <http://127.0.0.1:8083/docs>, live sensor readings <http://127.0.0.1:8081/api/sensors> |
+| 5 min each | One module on its own | each repository's README has a **quick test** section (tests and demo, no other module needed) |
+| 0 min | Automated proof | the green badges below: every repository runs its tests on each push, and this repository rebuilds the whole platform from GitHub and checks that the modules talk to each other |
+
+Each module's report (`docs/rapport.md`, in French) states its results **and its limits**.
 
 ## Modules
 
@@ -68,6 +80,18 @@ Everything is published on `127.0.0.1` only: that is one of the security module'
 ## Demo video
 
 The 2-minute script, shot list and CapCut editing guide are in [`docs/video/script.md`](docs/video/script.md).
+
+## Certifications (in progress)
+
+Free certifications that back the skills used in the project:
+
+| Certification | Issuer | Workload | Related module | Status |
+|---|---|---|---|---|
+| SecNumacadémie | ANSSI (French cybersecurity agency) | ~20 h | 5 · security | in progress |
+| Elements of AI | University of Helsinki | ~30 h | 3 · forecast | in progress |
+| Introduction to Cybersecurity | Cisco Networking Academy | ~6 h | 5 · security | in progress |
+
+Certificates will be linked here once obtained.
 
 ## Report
 

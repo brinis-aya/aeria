@@ -57,5 +57,5 @@ Captures d'écran vidéo avec la Xbox Game Bar (Win + Alt + R) ou OBS Studio, na
 ## Publication
 
 - Mettre la vidéo en ligne (YouTube en « non répertoriée », ou une *release* GitHub du dépôt `aeria`).
-- Remplacer le lien `VIDEO_URL` dans le README du dépôt `aeria`.
+- Ajouter le lien de la vidéo en haut du README du dépôt `aeria` (à côté du lien du tableau de bord).
 - Ajouter une miniature : capture de la carte et titre « Aeria · 2 min ».

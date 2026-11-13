@@ -88,8 +88,9 @@ les croisant.
 - **Une seule année de données.** L'hiver n'est jamais en période de test pour la prévision, et les épisodes
   « Mauvais » sont rares.
 - **Test utilisateur à mener.** Le protocole est prêt (module 6).
-- **Formation.** Le MOOC SecNumacadémie de l'ANSSI et la vidéo de démonstration sont à réaliser par l'auteur.
-  Le script et le plan de tournage sont fournis.
+- **Formation.** Trois certifications gratuites sont en cours : SecNumacadémie (ANSSI), Elements of AI
+  (université d'Helsinki) et Introduction to Cybersecurity (Cisco). La vidéo de démonstration est à tourner ;
+  le script et le plan de tournage sont fournis.
 
 ## 6. Documents
 
