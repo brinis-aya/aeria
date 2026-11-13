@@ -15,7 +15,8 @@ split into seven modules.
 
 | Time | What | How |
 |---|---|---|
-| 1 min | The public dashboard | open <https://brinis-aya.github.io/aeria-dashboard/>: map, a station page, tomorrow's forecast |
+| 1 min | The public dashboard | open <https://brinis-aya.github.io/aeria-dashboard/>: map, a station page, tomorrow's forecast (data rebuilt every morning from official open data) |
+| 1 min | The mobile app | <https://brinis-aya.github.io/aeria-mobile/> in a browser, or the Android APK from its [latest release](https://github.com/brinis-aya/aeria-mobile/releases/tag/latest) |
 | 15 min | **The whole platform** | Docker Desktop (4 GB RAM free, ports 1883, 8081, 8083, 8084 free), then `git clone https://github.com/brinis-aya/aeria && cd aeria && docker compose up --build`. The first build downloads and compiles every module (10–15 min). |
 | | then | back-office <http://127.0.0.1:8084> (`responsable` / `demo-responsable`), forecast API <http://127.0.0.1:8083/docs>, live sensor readings <http://127.0.0.1:8081/api/sensors> |
 | 5 min each | One module on its own | each repository's README has a **quick test** section (tests and demo, no other module needed) |
@@ -34,6 +35,7 @@ Each module's report (`docs/rapport.md`, in French) states its results **and its
 | 5 | [aeria-security](https://github.com/brinis-aya/aeria-security) | EBIOS RM risk analysis, audit with fixes re-tested, Wazuh detection rules, ISO 27001 statement of applicability | nmap, Varys, Wazuh, OSV | [![CI](https://github.com/brinis-aya/aeria-security/actions/workflows/ci.yml/badge.svg)](https://github.com/brinis-aya/aeria-security/actions) |
 | 6 | [aeria-dashboard](https://github.com/brinis-aya/aeria-dashboard) | UX case study and React dashboard: map, charts, forecast, presentation page | React, Leaflet, Recharts, Vite, GitHub Pages | [![CI](https://github.com/brinis-aya/aeria-dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/brinis-aya/aeria-dashboard/actions) |
 | 7 | **aeria** (this repo) | Overview, architecture, one-command platform, integration CI, demo video | Docker Compose, GitHub Actions | ↑ |
+| + | [aeria-mobile](https://github.com/brinis-aya/aeria-mobile) | Flutter app: tomorrow's index for your station and a "bad air tomorrow" notification, plugged into the forecast API | Flutter, Dart, WorkManager | [![CI](https://github.com/brinis-aya/aeria-mobile/actions/workflows/ci.yml/badge.svg)](https://github.com/brinis-aya/aeria-mobile/actions) |
 
 Every module has an English README and a full report in French (`docs/rapport.md`).
 
@@ -45,7 +47,7 @@ Every module has an English README and a full report in French (`docs/rapport.md
 | Forecast | right ATMO index for tomorrow **83.1 %** of the time vs 79.6 % for "same as today", in a leak-free rolling backtest |
 | Maintenance | one simulated year: 99.5 % sensor availability, MTBF, SLA and costs computed in SQL views |
 | Security | 10 audit findings; the 6 most serious fixed in the modules and re-tested before/after; 15 Wazuh rules, 15/15 attack scenarios detected |
-| Quality | about 140 automated tests across the modules; the CI of this repo rebuilds the whole platform from the repositories and checks it end to end |
+| Quality | about 150 automated tests across the modules; the CI of this repo rebuilds the whole platform from the repositories and checks it end to end |
 
 ## Run the platform
 
@@ -60,6 +62,7 @@ docker compose up --build        # builds every module from its GitHub repositor
 | Forecast API (module 3) | <http://127.0.0.1:8083/docs> |
 | Sensor ingestion (module 1) | <http://127.0.0.1:8081/api/sensors> |
 | Dashboard (module 6) | <https://brinis-aya.github.io/aeria-dashboard/> (static) |
+| Mobile app | <https://brinis-aya.github.io/aeria-mobile/>, or Android APK; set its source to the API (`http://10.0.2.2:8083` from the emulator) |
 
 Everything is published on `127.0.0.1` only: that is one of the security module's findings.
 

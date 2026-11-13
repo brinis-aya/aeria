@@ -30,6 +30,7 @@ Chaque maillon est un module, un dépôt GitHub public, un rapport.
 | 5. Sécurité | EBIOS RM, audit, corrections re-testées, Wazuh, ISO 27001 | 6 constats corrigés avec preuve avant/après, 15/15 scénarios détectés |
 | 6. Tableau de bord | étude UX, site React (carte, graphiques, prévision) | site statique publié, accessibilité vérifiée par axe-core en CI |
 | 7. Vitrine | architecture, plateforme en une commande, CI d'intégration, script vidéo | plateforme reconstruite depuis les dépôts et testée de bout en bout |
+| + Mobile | application Flutter (Android et web) branchée sur la prévision | alerte « mauvais air demain », APK publié par la CI |
 
 ## 2. Fil conducteur entre les modules
 
@@ -58,7 +59,7 @@ les croisant.
   maintenance. Elle est signalée comme telle.
 - **Comparer à une référence simple** : persistance et climatologie pour la prévision ; avant/après pour
   chaque correction de sécurité.
-- **Tester ce qui compte** : environ 140 tests automatisés. Ils couvrent les règles de gestion sur une vraie
+- **Tester ce qui compte** : environ 150 tests automatisés. Ils couvrent les règles de gestion sur une vraie
   base PostgreSQL, l'absence de fuite d'information dans la prévision, les règles Wazuh sur un vrai manager,
   et l'accessibilité du site.
 - **Intégration continue sur les 7 dépôts.** Le dépôt vitrine reconstruit toute la plateforme depuis GitHub et
