@@ -18,7 +18,8 @@ jobs:
         run: |
           fail=0
           for r in aeria-iot-sensors aeria-data-pipeline aeria-forecast aeria-backoffice aeria-security aeria-dashboard; do
-            c=$(gh run list -R "brinis-aya/$r" -b main -L 1 --json conclusion -q '.[0].conclusion')
+            # last completed run: a run still in progress (e.g. pushed at the same time) has no result yet
+            c=$(gh run list -R "brinis-aya/$r" -b main --status completed -L 1 --json conclusion -q '.[0].conclusion')
             printf '%-22s %s\n' "$r" "${c:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
             [ "$c" = "success" ] || fail=1
           done
